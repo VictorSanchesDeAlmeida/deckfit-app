@@ -1,35 +1,85 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import { Platform } from "react-native";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function Layout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: "#7af5ff",
+        tabBarInactiveTintColor: "rgba(184, 223, 255, 0.58)",
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "700",
+          letterSpacing: 0.8,
+          marginBottom: 3,
+        },
+        tabBarStyle: {
+          position: "fixed",
+          alignSelf: "center",
+          width: "90%",
+          bottom: 16,
+          height: 70,
+          borderRadius: 18,
+          paddingTop: 8,
+          borderTopWidth: 1,
+          borderWidth: 1,
+          borderColor: "rgba(122, 245, 255, 0.32)",
+          backgroundColor: "rgba(8, 19, 44, 0.94)",
+          // shadowColor: "#00e7ff",
+          // shadowOpacity: 0.2,
+          // shadowRadius: 18,
+          // shadowOffset: { width: 0, height: 0 },
+          elevation: 14,
+          ...(Platform.OS === "ios" ? { borderTopWidth: 1 } : {}),
+        },
+      }}
+    >
       <Tabs.Screen
-        name="index"
+        name="home/page"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarLabel: "HOME",
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              name={focused ? "home" : "home-outline"}
+              size={focused ? 25 : 23}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="deck/page"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarLabel: "DECKS",
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              name={focused ? "cards" : "cards-outline"}
+              size={focused ? 25 : 23}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings/page"
+        options={{
+          tabBarLabel: "CONFIG",
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              name={focused ? "cog" : "cog-outline"}
+              size={focused ? 25 : 23}
+              color={color}
+            />
+          ),
         }}
       />
     </Tabs>
   );
 }
+
+export const unstable_settings = {
+  anchor: "(tabs)",
+};
