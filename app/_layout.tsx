@@ -1,3 +1,4 @@
+import { UserProvider } from "@/context/user-context";
 import { ThemeProvider } from "@react-navigation/native";
 import * as NavigationBar from "expo-navigation-bar";
 import { Stack } from "expo-router";
@@ -62,10 +63,12 @@ export default function RootLayout() {
         },
       }}
     >
-      <Stack>
-        <Stack.Screen name="login/page" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
+      <UserProvider>
+        <Stack>
+          <Stack.Screen name="login/page" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+      </UserProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
   );

@@ -1,6 +1,7 @@
+import { Input } from "@/components/ui/input";
+import { useUser } from "@/context/user-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import {
@@ -11,13 +12,9 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-const AUTH_TOKEN_KEY = "deckfit_auth_token";
-const MIN_SPLASH_TIME_MS = 1500;
 
 export default function Login() {
   const [identifier, setIdentifier] = useState("");
@@ -26,20 +23,14 @@ export default function Login() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
+  const { login, verifySession } = useUser();
+
   useEffect(() => {
     let isMounted = true;
 
     const checkExistingSession = async () => {
       try {
-        const [savedToken] = await Promise.all([
-          SecureStore.getItemAsync(AUTH_TOKEN_KEY),
-          new Promise((resolve) => setTimeout(resolve, MIN_SPLASH_TIME_MS)),
-        ]);
-
-        if (savedToken) {
-          router.replace("/(tabs)/home/page");
-          return;
-        }
+        await verifySession();
       } catch {
         Alert.alert("Erro", "Não foi possível validar sua sessão atual.");
       } finally {
@@ -56,28 +47,10 @@ export default function Login() {
     return () => {
       isMounted = false;
     };
-  }, [router]);
+  }, [router, verifySession]);
 
   const handleLogin = async () => {
-    if (!identifier || !password) {
-      Alert.alert("Atenção", "Por favor, preencha ambos os campos.");
-      return;
-    }
-
-    if (identifier === "admin" && password === "pass") {
-      try {
-        const fakeToken = `token_${Date.now()}_${identifier}`;
-        await SecureStore.setItemAsync(AUTH_TOKEN_KEY, fakeToken);
-        router.replace("/(tabs)/home/page");
-      } catch {
-        Alert.alert(
-          "Erro",
-          "Não foi possível salvar sua sessão no dispositivo.",
-        );
-      }
-    } else {
-      Alert.alert("Erro de login", "Credenciais inválidas. Tente novamente.");
-    }
+    await login({ identifier, password });
   };
 
   if (isCheckingSession) {
@@ -119,50 +92,22 @@ export default function Login() {
               Conecte-se ao sistema com sua credencial.
             </Text>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Username ou Email</Text>
-              <View style={styles.inputWrapper}>
-                <MaterialCommunityIcons
-                  name="account-circle-outline"
-                  size={20}
-                  color="#84dfff"
-                />
-                <TextInput
-                  value={identifier}
-                  onChangeText={setIdentifier}
-                  placeholder="seu.username ou email@dominio.com"
-                  placeholderTextColor="rgba(190, 220, 255, 0.55)"
-                  style={styles.input}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="email-address"
-                  returnKeyType="next"
-                />
-              </View>
-            </View>
+            <Input
+              label="Username ou Email"
+              placeholder="seu.username ou email@gmail.com"
+              value={identifier}
+              onChange={setIdentifier}
+              icon="account-circle-outline"
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Senha</Text>
-              <View style={styles.inputWrapper}>
-                <MaterialCommunityIcons
-                  name="lock-outline"
-                  size={20}
-                  color="#84dfff"
-                />
-                <TextInput
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="••••••••"
-                  placeholderTextColor="rgba(190, 220, 255, 0.55)"
-                  style={styles.input}
-                  secureTextEntry
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="done"
-                  onSubmitEditing={handleLogin}
-                />
-              </View>
-            </View>
+            <Input
+              label="Senha"
+              placeholder="••••••••"
+              value={password}
+              onChange={setPassword}
+              icon="lock-outline"
+              type="password"
+            />
 
             <Pressable style={styles.button} onPress={handleLogin}>
               <Text style={styles.buttonText}>Acessar Sistema</Text>
