@@ -9,6 +9,7 @@ type UserTypeContext = {
     name: string;
     email: string;
   } | null;
+  isLoading: boolean;
   login: ({
     identifier,
     password,
@@ -17,16 +18,37 @@ type UserTypeContext = {
     password: string;
   }) => void;
   logout: () => void;
-  verifySession: () => Promise<void>;
 };
 
 const UserContext = createContext<UserTypeContext | null>(null);
 
-const MIN_SPLASH_TIME_MS = 1500;
 const AUTH_TOKEN_KEY = "deckfit_auth_token";
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserTypeContext["user"]>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
+        if (token) {
+          // Se tem token, considera o usuário logado
+          setUser({
+            id: "1",
+            name: "Administrador",
+            email: "admin@admin.com",
+          });
+        }
+      } catch (error) {
+        console.log("Erro ao verificar autenticação:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
 
   const login = async ({
     identifier,
@@ -65,32 +87,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const verifySession = async () => {
-    try {
-      const [savedToken] = await Promise.all([
-        SecureStore.getItemAsync(AUTH_TOKEN_KEY),
-        new Promise((resolve) => setTimeout(resolve, MIN_SPLASH_TIME_MS)),
-      ]);
-
-      if (savedToken) {
-        setUser({
-          id: "1",
-          name: "Administrador",
-          email: "admin@admin.com",
-        });
-        router.replace("/(tabs)/home/page");
-      }
-    } catch {
-      Alert.alert("Erro", "Não foi possível validar sua sessão atual.");
-    }
-  };
-
-  useEffect(() => {
-    verifySession();
-  }, []);
-
   return (
-    <UserContext.Provider value={{ user, login, logout, verifySession }}>
+    <UserContext.Provider value={{ user, isLoading, login, logout }}>
       {children}
     </UserContext.Provider>
   );

@@ -2,19 +2,10 @@ import { UserProvider } from "@/context/user-context";
 import { ThemeProvider } from "@react-navigation/native";
 import * as NavigationBar from "expo-navigation-bar";
 import { Stack } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { Platform } from "react-native";
 import "react-native-reanimated";
-
-SplashScreen.preventAutoHideAsync().catch(() => {
-  return;
-});
-
-export const unstable_settings = {
-  anchor: "(tabs)",
-};
 
 export default function RootLayout() {
   useEffect(() => {
@@ -64,12 +55,12 @@ export default function RootLayout() {
       }}
     >
       <UserProvider>
-        <Stack>
-          <Stack.Screen name="login/page" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="login/page" />
+          <Stack.Screen name="(tabs)" />
         </Stack>
       </UserProvider>
-      <StatusBar style="auto" />
+      <StatusBar style="light" hidden={true} />
     </ThemeProvider>
   );
 }

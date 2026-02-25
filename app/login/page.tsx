@@ -1,61 +1,28 @@
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/context/user-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Login() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const insets = useSafeAreaInsets();
-  const router = useRouter();
 
-  const { login, verifySession } = useUser();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const checkExistingSession = async () => {
-      try {
-        await verifySession();
-      } catch {
-        Alert.alert("Erro", "Não foi possível validar sua sessão atual.");
-      } finally {
-        if (isMounted) {
-          setIsCheckingSession(false);
-        }
-
-        await SplashScreen.hideAsync();
-      }
-    };
-
-    checkExistingSession();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [router, verifySession]);
+  const { login } = useUser();
 
   const handleLogin = async () => {
     await login({ identifier, password });
   };
-
-  if (isCheckingSession) {
-    return <View style={styles.safeArea} />;
-  }
 
   return (
     <View
