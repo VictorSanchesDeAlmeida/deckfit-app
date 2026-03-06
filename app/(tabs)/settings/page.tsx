@@ -1,3 +1,4 @@
+import { Container } from "@/components/ui/container";
 import { useUser } from "@/context/user-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -6,7 +7,7 @@ export default function Settings() {
   const { user, logout } = useUser();
 
   return (
-    <View style={styles.container}>
+    <Container>
       <View style={styles.header}>
         <View>
           <Text style={styles.title}>Configurações</Text>
@@ -41,17 +42,11 @@ export default function Settings() {
           Email: {user?.email}
         </Text>
       </View>
-    </View>
+    </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 34,
-    paddingBottom: 26,
-  },
   header: {
     flexDirection: "row",
     alignItems: "center",
